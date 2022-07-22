@@ -1,3 +1,4 @@
+from tkinter.messagebox import NO
 from django.db import models
 
 # Create your models here.
@@ -15,3 +16,4 @@ class Product(models.Model):
 
     def get_discount(self):
         return "123"
+        
