@@ -26,7 +26,7 @@ def api_home(request, *args, **kwargs):
     
     #if request.method != "GET":
         #return Response({"detail": "POST not allowed"}, status=405)
-    
+    print(request.data)
     serializer = ProductSerializer(data = request.data)
     if serializer.is_valid(raise_exception=True):
         #serializer.save()
