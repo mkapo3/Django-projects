@@ -16,6 +16,7 @@ class ProductListCreateAPIView(StaffEditorPermissionMixin, generics.ListCreateAP
     def perform_create(self, serializer):
         # serializer.save(user=self.request.user)
         print(serializer.validated_data)
+        email = serializer.validated_data.get('email')
         title = serializer.validated_data.get('title')
         content = serializer.validated_data.get('content') or None
 
