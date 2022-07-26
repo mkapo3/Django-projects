@@ -1,13 +1,21 @@
+from email import header
 import requests
+from getpass import getpass
 
-#endpoint = "https://httpbin.org/status/200/"
-#endpoint = "https://httpbin.org/anything"
-endpoint = "http://localhost:8000/api/products/"
-#endpoint = "http://localhost:8000/api/products/create/"
+endpoint = "http://localhost:8000/api/auth/"
+username = input("What is your username:\n")
+password = getpass()
 
-response = requests.get(endpoint)  # API -> Method
-# print(response.text)
-# print(response.status_code)
+auth_response = requests.post(endpoint, json={"username":"cfe", "password": password}) 
+print(auth_response.json())
 
-print(response.json())
+if auth_response.status_code == 200: 
+    token = auth_response.json()['token']
+    headers = {
+        'Authorization' : f"Bearer {token}"
+    }
+    endpoint = "http://localhost:8000/api/products/"
+
+    response = requests.get(endpoint, headers=headers) 
+    print(response.json())
 #

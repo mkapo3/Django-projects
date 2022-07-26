@@ -1,16 +1,15 @@
-from django.http import Http404
-from requests import Response, delete
-from rest_framework import generics, mixins
+from requests import Response
+from rest_framework import  generics, mixins
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
 from django.shortcuts import get_object_or_404
 
+from api.mixins import StaffEditorPermissionMixin
 from .models import Product
 from .serializers import ProductSerializer
 
 
-class ProductListCreateAPIView(generics.ListCreateAPIView):
+class ProductListCreateAPIView(StaffEditorPermissionMixin, generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
@@ -27,13 +26,14 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
         # return super().perform_create(serializer)
 
 
-class ProductDetailAPIView(generics.RetrieveAPIView):
+class ProductDetailAPIView(StaffEditorPermissionMixin, generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
     # lookup_field = 'pk'
 
 
-class ProductUpdateAPIView(generics.UpdateAPIView):
+class ProductUpdateAPIView(StaffEditorPermissionMixin, generics.UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
@@ -46,10 +46,11 @@ class ProductUpdateAPIView(generics.UpdateAPIView):
         # return super().perform_update(serializer)
 
 
-class ProductDeleteAPIView(generics.DestroyAPIView):
+class ProductDeleteAPIView(StaffEditorPermissionMixin, generics.DestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
+
     print(lookup_field)
 
     def perform_destroy(self, instance):
