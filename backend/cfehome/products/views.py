@@ -1,17 +1,22 @@
-from requests import Response
+from requests import Response, request
 from rest_framework import  generics, mixins
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from api.mixins import StaffEditorPermissionMixin
+from api.mixins import StaffEditorPermissionMixin, UserQuerySetMixin
 from .models import Product
 from .serializers import ProductSerializer
 
 
-class ProductListCreateAPIView(StaffEditorPermissionMixin, generics.ListCreateAPIView):
+class ProductListCreateAPIView(
+    UserQuerySetMixin, 
+    StaffEditorPermissionMixin, 
+    generics.ListCreateAPIView):
+
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    allow_staff_view = False
 
     def perform_create(self, serializer):
         # serializer.save(user=self.request.user)
@@ -23,18 +28,26 @@ class ProductListCreateAPIView(StaffEditorPermissionMixin, generics.ListCreateAP
         if content is None:
             content = title
 
-        serializer.save(content=content)
+        serializer.save(content=content, user=self.request.user)
         # return super().perform_create(serializer)
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        request = self.request
+        if not request.user.is_authenticated:
+            return Product.objects.none()
+        return qs.filter(user=request.user)
 
 
-class ProductDetailAPIView(StaffEditorPermissionMixin, generics.RetrieveAPIView):
+class ProductDetailAPIView(
+    UserQuerySetMixin, StaffEditorPermissionMixin, generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
     # lookup_field = 'pk'
 
 
-class ProductUpdateAPIView(StaffEditorPermissionMixin, generics.UpdateAPIView):
+class ProductUpdateAPIView(
+    UserQuerySetMixin, StaffEditorPermissionMixin, generics.UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
@@ -47,7 +60,8 @@ class ProductUpdateAPIView(StaffEditorPermissionMixin, generics.UpdateAPIView):
         # return super().perform_update(serializer)
 
 
-class ProductDeleteAPIView(StaffEditorPermissionMixin, generics.DestroyAPIView):
+class ProductDeleteAPIView(
+    UserQuerySetMixin, StaffEditorPermissionMixin, generics.DestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'pk'
